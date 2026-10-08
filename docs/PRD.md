@@ -4,7 +4,7 @@
 **Version:** 1.0  
 **Status:** Course-project baseline  
 **Task issue:** [#2 — Add project PRD, SRS, and TDD documentation](https://github.com/Ishmam2222/Campus-Lost-Found-Management-System/issues/2)  
-**Pull request:** Pending
+**Pull request:** [#3 — Add project PRD, SRS, and TDD](https://github.com/Ishmam2222/Campus-Lost-Found-Management-System/pull/3)
 
 ## 1. Product summary
 

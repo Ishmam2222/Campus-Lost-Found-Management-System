@@ -4,7 +4,7 @@
 **Version:** 1.0  
 **Status:** Course-project baseline  
 **Task issue:** [#2 — Add project PRD, SRS, and TDD documentation](https://github.com/Ishmam2222/Campus-Lost-Found-Management-System/issues/2)  
-**Pull request:** Pending
+**Pull request:** [#3 — Add project PRD, SRS, and TDD](https://github.com/Ishmam2222/Campus-Lost-Found-Management-System/pull/3)
 
 ## 1. Purpose and scope
 
@@ -201,4 +201,4 @@ implementation, but changes must preserve least privilege and be documented.
 | Protect user data and API access | NFR-SEC-01 through NFR-SEC-05; NFR-PRIV-01 |
 
 **Tracking issue:** [#2](https://github.com/Ishmam2222/Campus-Lost-Found-Management-System/issues/2)  
-**Documentation pull request:** Pending
+**Documentation pull request:** [#3](https://github.com/Ishmam2222/Campus-Lost-Found-Management-System/pull/3)

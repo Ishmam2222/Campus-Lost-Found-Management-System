@@ -10,4 +10,4 @@ for the Campus Lost & Found Management System.
 | [TDD](TDD.md) | Proposed architecture, data model, API, and security design |
 
 **Tracking issue:** [#2 — Add project PRD, SRS, and TDD documentation](https://github.com/Ishmam2222/Campus-Lost-Found-Management-System/issues/2)  
-**Documentation pull request:** Pending
+**Documentation pull request:** [#3 — Add project PRD, SRS, and TDD](https://github.com/Ishmam2222/Campus-Lost-Found-Management-System/pull/3)
