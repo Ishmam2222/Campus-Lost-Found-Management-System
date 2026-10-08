@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+.venv/
+*.py[cod]
+
+# Node
+node_modules/
+frontend/dist/
+
+# Environment / deployment
+.env
+.vercel/
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
