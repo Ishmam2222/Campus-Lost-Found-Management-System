@@ -6,7 +6,7 @@ __pycache__/
 # Node
 node_modules/
 frontend/dist/
-d
+
 # Environment / deployment
 .env
 .vercel/
