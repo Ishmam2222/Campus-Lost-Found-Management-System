@@ -1,204 +1,175 @@
 # Software Requirements Specification (SRS)
 
 **Product:** Campus Lost & Found Management System  
-**Version:** 1.0  
-**Status:** Course-project baseline  
+**Version:** 1.1
+**Status:** Course-project plan
 **Task issue:** [#2 — Add project PRD, SRS, and TDD documentation](https://github.com/Ishmam2222/Campus-Lost-Found-Management-System/issues/2)  
 **Pull request:** [#3 — Add project PRD, SRS, and TDD](https://github.com/Ishmam2222/Campus-Lost-Found-Management-System/pull/3)
 
 ## 1. Purpose and scope
 
-This specification defines the expected behavior and quality attributes of the
-Campus Lost & Found Management System. The target implementation is a
-TypeScript/React single-page application backed by a Python/FastAPI REST API.
-Requirements describe the planned course-project product; the repository
-currently provides a starter scaffold rather than these complete workflows.
+This specification defines testable requirements for the course project. The
+system uses a React + TypeScript frontend and a FastAPI + Python REST backend.
+Requirements are marked **MVP** for the locally running mid-term demo or
+**Beta** for the final demo. The repository currently has only the framework
+scaffold and API connectivity examples; these feature requirements are not
+claims of completed functionality.
 
-The system supports campus members publishing and discovering lost/found
-reports, coordinating claims, and administrators moderating content. It must
-enforce authentication and authorization on the backend using roles and
-security scopes.
+## 2. Users and operating environment
 
-## 2. User classes
-
-- **Visitor:** Unauthenticated user. May view public report summaries and
-  authentication pages.
-- **Member:** Authenticated user who can create reports, manage their own
-  reports, and submit claims.
-- **Administrator:** Authenticated user with moderation permissions in
-  addition to member capabilities where appropriate.
-
-Administrative privileges must not be granted through public registration.
+- **[MVP] User:** An unauthenticated local user who manages catalog reports.
+- **[Beta] Member:** An authenticated user who has member permissions and a
+  profile dashboard.
+- **[Beta] Administrator:** An authenticated user with additional
+  administrator permissions.
+- **[MVP] Environment:** Frontend and FastAPI backend run locally; the
+  frontend calls the backend through the Vite `/api` proxy.
+- **[Beta] Environment:** The integrated application is deployed and accessed
+  over HTTPS.
 
 ## 3. Functional requirements
 
-### Authentication and accounts
+### 3.1 Report management
 
-- **FR-AUTH-01:** The system shall allow a user to register with a unique email
-  address and password, and shall reject invalid or duplicate account data.
-- **FR-AUTH-02:** The system shall authenticate credentials and return an
-  expiring access token on success. Invalid credentials shall not reveal
-  whether a particular email address has an account.
-- **FR-AUTH-03:** The system shall provide a logout action that clears the
-  frontend's active token. Because access tokens are stateless, logout shall
-  not be represented as server-side token revocation unless a revocation
-  mechanism is implemented.
-- **FR-AUTH-04:** Passwords shall never be stored or returned in plaintext.
-- **FR-AUTH-05:** The system shall reject requests using expired, malformed, or
-  invalidated credentials.
+- **FR-MVP-01:** The system shall allow a user to create a lost or found report
+  with a type, title, description, category, and location.
+- **FR-MVP-02:** The system shall validate required fields, maximum lengths,
+  and allowed report types before storing a report.
+- **FR-MVP-03:** The system shall list reports and allow filtering by type and
+  category.
+- **FR-MVP-04:** The system shall return an individual report by its identifier.
+- **FR-MVP-05:** The system shall allow a user to update an existing report.
+- **FR-MVP-06:** The system shall allow a user to delete an existing report.
+- **FR-MVP-07:** Report create, read, update, and delete actions shall be
+  available as REST API operations and usable from the React frontend.
+- **FR-MVP-08:** The frontend shall show loading, empty, success, and error
+  states for report operations; failed requests shall not appear successful.
+- **FR-MVP-09:** Report operations and the frontend/backend integration shall
+  work in local development without requiring user accounts.
 
-### Reports
+### 3.2 Authentication and account management
 
-- **FR-ITEM-01:** A member shall create a report with type (`lost` or `found`),
-  title, description, category, location, and an optional occurrence date.
-- **FR-ITEM-02:** The system shall validate required fields, field lengths, and
-  allowed enum values before storing a report.
-- **FR-ITEM-03:** Users shall browse and filter reports by type, category,
-  location, and status. List endpoints shall be paginated.
-- **FR-ITEM-04:** A member shall view and update their own reports. A member
-  shall not update another member's report.
-- **FR-ITEM-05:** A report owner or authorized administrator shall be able to
-  change report status to resolved or archived.
-- **FR-ITEM-06:** Public report responses shall not expose the owner's email,
-  private contact details, or internal moderation data.
+- **FR-BETA-01:** The system shall allow an account to register with a unique,
+  normalized email and password.
+- **FR-BETA-02:** The system shall authenticate valid credentials and reject
+  invalid credentials without revealing whether an email is registered.
+- **FR-BETA-03:** The system shall provide logout that clears the active
+  frontend authentication state.
+- **FR-BETA-04:** The system shall provide an authenticated profile dashboard
+  displaying the current user's safe profile data and reports.
+- **FR-BETA-05:** The system shall reject requests with missing, malformed,
+  expired, or otherwise invalid credentials.
+- **FR-BETA-06:** Public registration shall assign only the `member` role.
+  Role elevation shall require a trusted administrative mechanism.
 
-### Claims
+### 3.3 Authorization, RBAC, and scopes
 
-- **FR-CLAIM-01:** An authenticated member shall submit a claim for an open
-  found-item report with a description of identifying details.
-- **FR-CLAIM-02:** The system shall prevent a member from reviewing their own
-  claim and shall enforce the defined duplicate-claim policy.
-- **FR-CLAIM-03:** Only the found-report owner or an administrator with the
-  appropriate scope shall view private claim details and approve or reject a
-  claim.
-- **FR-CLAIM-04:** Claim status shall be one of `pending`, `approved`,
-  `rejected`, or `withdrawn`, and only permitted state transitions shall be
-  accepted.
-- **FR-CLAIM-05:** The system shall preserve the association between a claim,
-  its claimant, and the report it concerns.
+- **FR-BETA-07:** The system shall define `member` and `admin` roles and map
+  each role to server-controlled security scopes.
+- **FR-BETA-08:** Every protected endpoint shall enforce required scopes on
+  the backend independently of frontend visibility or client-provided role
+  data.
+- **FR-BETA-09:** Protected report operations shall verify the user's
+  permission and, where applicable, ownership of the report.
+- **FR-BETA-10:** The system shall return `401 Unauthorized` for unauthenticated
+  protected requests and `403 Forbidden` for authenticated requests without
+  sufficient permission.
 
-### Administration and authorization
+### 3.4 Deployment
 
-- **FR-AUTHZ-01:** The system shall assign each account a server-controlled
-  role. Public registration shall create only a `member` account.
-- **FR-AUTHZ-02:** The API shall check required scopes for protected
-  operations and shall perform ownership checks for user-owned resources.
-- **FR-AUTHZ-03:** The system shall restrict moderation operations to
-  administrators with the required moderation scope.
-- **FR-AUTHZ-04:** The system shall record administrative moderation actions
-  with actor, target, action, and timestamp.
-- **FR-AUTHZ-05:** The frontend shall adapt available actions to the current
-  user's permissions, but the API shall independently enforce every access
-  decision.
+- **FR-BETA-11:** The system shall be deployable with frontend and backend
+  routes integrated so that browser API calls use the configured `/api` path.
+- **FR-BETA-12:** Production access shall use HTTPS.
+- **FR-BETA-13:** Deployment secrets shall be configured outside source
+  control and shall not be included in frontend bundles.
 
-### API and integration
+## 4. Role and scope matrix
 
-- **FR-API-01:** The frontend shall communicate with the backend through
-  same-origin `/api` REST endpoints in development and production.
-- **FR-API-02:** The API shall use JSON request and response bodies except
-  where standard HTTP semantics require otherwise.
-- **FR-API-03:** The API shall return appropriate HTTP status codes and
-  consistent error details; invalid request data shall not result in a
-  successful response.
-- **FR-API-04:** The service shall expose OpenAPI documentation and a health
-  check endpoint.
+The backend is authoritative. A scope is a permission, not a role; a resource
+ownership check may further restrict an operation.
 
-## 4. Roles and security scopes
+| Role | Release | Proposed scopes |
+| --- | --- | --- |
+| Local user (no account) | MVP | No authentication scopes; local report CRUD only |
+| `member` | Beta | `profile:read:own`, `items:read`, `items:create`, `items:update:own`, `items:delete:own` |
+| `admin` | Beta | Member scopes plus `items:read:any`, `items:update:any`, `items:delete:any`, `users:manage` |
 
-Scopes are permissions, not user-selectable role names. The server determines
-the scope set from the account's assigned role and checks scopes on each
-protected endpoint.
+## 5. Interface requirements
 
-| Role | Initial scope set |
-| --- | --- |
-| `member` | `items:read`, `items:create`, `items:update:own`, `items:close:own`, `claims:create`, `claims:read:own` |
-| `admin` | Member capabilities plus `items:moderate`, `claims:moderate`, `users:manage`, `audit:read` |
-
-Resource ownership remains a separate check even when a general scope is
-present. A user must not gain access to a resource by changing a client-side
-role or request body. The final scope catalog may be refined during
-implementation, but changes must preserve least privilege and be documented.
-
-## 5. External interface requirements
-
-### Web interface
-
-- The frontend shall support current evergreen desktop and mobile browsers.
-- Forms shall label inputs, expose validation messages to assistive technology,
-  and indicate loading, success, empty, and error states.
-- Authentication state shall not be inferred from client-provided role values.
-
-### REST API
-
-- API paths shall be versioned or kept under a stable `/api` prefix.
-- Protected requests shall authenticate using the chosen token transport and
-  shall return `401 Unauthorized` for missing/invalid credentials and
-  `403 Forbidden` for insufficient permissions.
-- Validation errors shall return `422 Unprocessable Entity` with field-level
-  details where applicable.
-- List responses shall have a documented pagination contract.
+- **[MVP]** The React frontend shall call FastAPI through relative `/api`
+  paths, with Vite proxying requests during local development.
+- **[MVP]** Requests and responses shall use JSON, with Pydantic schemas
+  defining backend input validation.
+- **[MVP]** The REST API shall use standard HTTP methods and status codes and
+  expose OpenAPI documentation during development.
+- **[Beta]** Protected API requests shall carry the configured authentication
+  credential; frontend route guards shall be treated only as a usability aid.
+- **[Beta]** The deployed frontend and backend shall communicate through
+  configured routes over HTTPS.
 
 ## 6. Non-functional requirements
 
-- **NFR-SEC-01:** Passwords shall be hashed with a modern adaptive password
-  hashing algorithm, such as Argon2id, using a maintained library.
-- **NFR-SEC-02:** Signing keys, database credentials, and deployment secrets
-  shall be provided through environment configuration and never committed.
-- **NFR-SEC-03:** All production traffic shall use HTTPS. Deployment shall
-  restrict cross-origin access; local development may use the Vite proxy.
-- **NFR-SEC-04:** Inputs shall be validated and database access shall use
-  parameterized ORM queries. Responses shall not disclose secrets or
-  unnecessary personal data.
-- **NFR-SEC-05:** Authorization checks shall be tested for both allowed and
-  denied cases, including direct API requests and cross-user resource access.
-- **NFR-PRIV-01:** Private claim details and account contact information shall
-  be disclosed only to authorized participants and administrators.
-- **NFR-REL-01:** Errors from API dependencies shall be visible as an error
-  state; the UI shall not silently present failed operations as successful.
-- **NFR-MAINT-01:** Frontend code shall pass TypeScript type checking and
-  backend code shall use typed request/response schemas.
-- **NFR-TEST-01:** Automated tests shall cover core report and claim workflows,
-  authentication, scope enforcement, and ownership rules.
-- **NFR-DEPLOY-01:** The application shall be configurable for local
-  development and the intended hosting environment without committing
-  environment-specific secrets.
+- **NFR-MVP-01 [MVP]:** The local setup shall be documented and small enough
+  to start without production hosting credentials.
+- **NFR-MVP-02 [MVP]:** Backend request and response data shall use typed
+  schemas; invalid input shall produce a client error and no successful
+  mutation.
+- **NFR-MVP-03 [MVP]:** User-entered text shall be rendered as text, not
+  trusted HTML.
+- **NFR-BETA-01 [Beta]:** Passwords shall be stored only as hashes produced by
+  a maintained adaptive password-hashing library.
+- **NFR-BETA-02 [Beta]:** Signing keys and deployment credentials shall be
+  read from protected environment configuration and never committed.
+- **NFR-BETA-03 [Beta]:** All production traffic shall use HTTPS.
+- **NFR-BETA-04 [Beta]:** Authorization shall follow least privilege and be
+  tested for allowed and denied access, including cross-user resource access.
+- **NFR-BETA-05 [Beta]:** API responses shall not disclose passwords, tokens,
+  signing keys, or profile data the requester is not allowed to see.
+- **NFR-BETA-06 [Beta]:** CORS, if needed, shall use explicitly configured
+  origins; wildcard origins shall not be combined with credentials.
+- **NFR-BETA-07 [Beta]:** The production app shall report dependency and
+  request failures clearly without exposing stack traces to users.
 
-## 7. Data and validation constraints
+## 7. Data and validation rules
 
-- Account email shall be normalized and unique.
-- Report type and lifecycle state shall use enumerated values.
-- A report must have an owner; a claim must reference an existing found report
-  and a claimant.
-- Dates shall use an unambiguous ISO 8601 representation at the API boundary.
-- User-entered text shall have documented maximum lengths and be rendered as
-  text, not trusted HTML.
-- Deletion and retention behavior shall be specified before production use;
-  the initial baseline favors status-based archival and preserves audit events.
+- **[MVP]** A report shall have a unique identifier and required type, title,
+  description, category, and location.
+- **[MVP]** Report type shall be `lost` or `found`.
+- **[MVP]** Text fields shall have documented maximum lengths and be validated
+  by the backend.
+- **[Beta]** An account email shall be normalized and unique; account role
+  shall be controlled by the server.
+- **[Beta]** A profile response shall exclude password hashes and other
+  authentication secrets.
 
 ## 8. Acceptance tests
 
-1. Register two members, create a report as one, and verify the other member
-   cannot edit or close it.
-2. Send a protected request without a token and verify a `401`; send a valid
-   token without the required scope and verify a `403`.
-3. Create a found report, submit a claim from a second account, and verify that
-   only the report owner or an appropriately scoped admin can review it.
-4. Verify list filters and pagination return only matching reports and do not
-   reveal private contact or claim information.
-5. Verify that invalid payloads produce validation errors and do not create
-   partial records.
-6. Exercise the above paths through API tests and at least one browser-level
-   frontend-to-backend flow.
+1. **[MVP]** Create a report through the frontend and confirm it appears in the
+   list and its detail endpoint.
+2. **[MVP]** Update a report and verify the returned and listed data reflect
+   the change.
+3. **[MVP]** Delete a report and verify it is no longer returned.
+4. **[MVP]** Submit an invalid report and verify the API rejects it without
+   creating or partially changing a record.
+5. **[Beta]** Register and log in; verify invalid credentials are rejected and
+   the profile dashboard shows only the authenticated user's permitted data.
+6. **[Beta]** Attempt protected requests without a token and with insufficient
+   scopes; verify `401` and `403` respectively.
+7. **[Beta]** Attempt to modify another member's protected report and verify
+   the backend denies the request.
+8. **[Beta]** Verify admin-only permissions are unavailable to a member,
+   including when the member directly calls the API.
+9. **[Beta]** Verify the deployed site uses HTTPS and no secret is present in
+   the frontend bundle.
 
 ## 9. Traceability
 
-| Product goal | Requirements |
+| Course goal | Requirements |
 | --- | --- |
-| Discover and manage lost/found reports | FR-ITEM-01 through FR-ITEM-06 |
-| Coordinate a safe item return | FR-CLAIM-01 through FR-CLAIM-05 |
-| Demonstrate authentication and RBAC | FR-AUTH-01 through FR-AUTH-05; FR-AUTHZ-01 through FR-AUTHZ-05 |
-| Demonstrate integrated React and FastAPI | FR-API-01 through FR-API-04 |
-| Protect user data and API access | NFR-SEC-01 through NFR-SEC-05; NFR-PRIV-01 |
-
-**Tracking issue:** [#2](https://github.com/Ishmam2222/Campus-Lost-Found-Management-System/issues/2)  
-**Documentation pull request:** [#3](https://github.com/Ishmam2222/Campus-Lost-Found-Management-System/pull/3)
+| React + TypeScript frontend | FR-MVP-07 to FR-MVP-09; MVP interface requirements |
+| FastAPI + Python REST backend | FR-MVP-01 to FR-MVP-07; MVP interface requirements |
+| Authentication | FR-BETA-01 to FR-BETA-06 |
+| Roles and RBAC | FR-BETA-06 to FR-BETA-10 |
+| Security scopes/permissions | FR-BETA-07 to FR-BETA-10; NFR-BETA-04 |
+| Profile dashboard | FR-BETA-04 |
+| Deployment | FR-BETA-11 to FR-BETA-13 |

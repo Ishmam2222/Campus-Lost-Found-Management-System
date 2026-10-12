@@ -1,128 +1,145 @@
 # Product Requirements Document (PRD)
 
 **Product:** Campus Lost & Found Management System  
-**Version:** 1.0  
-**Status:** Course-project baseline  
-**Task issue:** [#2 — Add project PRD, SRS, and TDD documentation](https://github.com/Ishmam2222/Campus-Lost-Found-Management-System/issues/2)  
+**Version:** 1.1
+**Status:** Course-project plan
+**Task issue:** [#2 — Add project PRD, SRS, and TDD](https://github.com/Ishmam2222/Campus-Lost-Found-Management-System/issues/2)
 **Pull request:** [#3 — Add project PRD, SRS, and TDD](https://github.com/Ishmam2222/Campus-Lost-Found-Management-System/pull/3)
 
 ## 1. Product summary
 
-The Campus Lost & Found Management System is a web application for a campus
-community to publish lost-item notices, report found property, and coordinate
-the return of items. It uses a React.js and TypeScript frontend, a FastAPI
-Python backend, and REST APIs. The application must authenticate users and
-enforce role-based permissions and security scopes on the server.
+The Campus Lost & Found Management System gives a campus community one place
+to publish, find, and manage lost- and found-item reports. It uses a React and
+TypeScript web frontend and a Python FastAPI REST backend.
 
-The repository currently contains the full-stack starter and API connectivity
-examples. The workflows and requirements in this document describe the
-intended course-project product; they are not claims that those features have
-already been implemented.
+The work is split into two course milestones. **MVP** demonstrates report CRUD
+through REST APIs with the application running locally. **Beta** builds on
+that foundation with authentication, roles/RBAC, a user profile dashboard,
+security scopes/permissions, and deployment. The current repository is a
+framework scaffold; the report and account workflows in this document are
+planned work.
 
-## 2. Problem and opportunity
+## 2. Problem
 
-Lost-property information is often scattered across informal chats, notice
-boards, and in-person inquiries. This makes it hard to find current reports,
-contact the right person, and safely verify a claimant. A shared, searchable
-system can make reports easier to discover while keeping claimant details and
-administrative actions appropriately restricted.
+Lost-item information is often scattered across chats, notice boards, and
+in-person inquiries. This makes reports difficult to find and keep current.
+A simple shared catalog can help campus members publish and search reports;
+later access controls can protect accounts and administrative actions.
 
-## 3. Goals
+## 3. Goals and non-goals
 
-- Give campus members one place to create and find lost- and found-item reports.
-- Support a clear, auditable claim and return-coordination workflow.
-- Protect report ownership and account data through authentication,
-  authorization, RBAC, and permission scopes.
-- Demonstrate end-to-end integration between a typed React frontend and
-  documented FastAPI REST endpoints.
-- Provide administrators with narrowly scoped moderation capabilities.
+### Goals
 
-## 4. Users and roles
+- **[MVP]** Demonstrate a complete, locally runnable React + TypeScript and
+  FastAPI + Python application.
+- **[MVP]** Let users create, view, update, and delete lost/found reports
+  through REST APIs.
+- **[Beta]** Authenticate users and enforce member/admin roles and permissions
+  on the backend.
+- **[Beta]** Provide an authenticated user profile dashboard and deploy the
+  application for the final demo.
 
-| User | Needs |
-| --- | --- |
-| Visitor | Understand the service and sign in or register. |
-| Campus member | Search reports, manage their own reports, and submit or manage claims. |
-| Administrator | Review reports and claims that require moderation and manage access where necessary. |
+### Non-goals
 
-The first release assumes a single campus and two application roles:
-`member` and `admin`. Campus affiliation verification, additional roles, and
-integration with institutional identity providers are outside the initial
-scope unless the course team approves them.
+- **[MVP and Beta]** Payments, shipping, live chat, native mobile apps,
+  automatic image matching, and institutional SSO.
+- **[MVP and Beta]** Photo upload. It can be considered later if storage,
+  privacy, and abuse controls are designed.
+- **[MVP and Beta]** A large moderation or notification platform. Keep the
+  assignment focused on report CRUD and the specified Beta requirements.
 
-## 5. Scope
+## 4. Users
 
-### In scope
+| User | MVP | Beta |
+| --- | --- | --- |
+| Campus member | Uses the locally running report catalog. MVP does not require an account. | Registers/signs in, manages a profile, and uses permitted report functions. |
+| Administrator | Not part of MVP. | Uses administrator-only functions governed by RBAC and scopes. |
 
-- Account registration, login, and logout.
-- Create and manage a lost-item or found-item report.
-- Browse and filter open reports by type, category, and location.
-- Submit and track a claim against a found-item report.
-- Let the found-item reporter review claims and mark a report resolved.
-- Admin moderation of inappropriate reports and claims.
-- Server-side role and scope enforcement for protected operations.
-- Responsive user interface, REST API validation, and automated tests.
+The application is for one campus. Institutional identity verification is
+outside the planned scope.
 
-### Out of scope for the initial release
+## 5. Release scope and features
 
-- Payments, shipping, or automated identity-provider integration.
-- Automated image recognition or automatic lost/found matching.
-- Public display of private contact information.
-- Native mobile applications, real-time chat, and push notifications.
-- Photo upload, unless storage, retention, and abuse controls are separately
-  designed and approved.
+### MVP — mid-term demo
+
+- **[MVP]** Run the frontend and backend locally.
+- **[MVP]** Create a lost or found report with title, description, category,
+  location, and type.
+- **[MVP]** List and view reports; filter by report type and category.
+- **[MVP]** Update and delete a report through REST endpoints.
+- **[MVP]** Validate input and show loading, success, empty, and error states.
+- **[MVP]** Store report data in a local development database.
+- **[MVP]** Document and test the REST API.
+- **[MVP]** No login, roles, permissions, production deployment, or claims
+  workflow is required for this milestone.
+
+### Beta — final demo
+
+- **[Beta]** Register, log in, and log out.
+- **[Beta]** Assign `member` and `admin` roles through trusted server-side
+  administration; public registration must never grant admin access.
+- **[Beta]** Enforce RBAC, security scopes/permissions, and report ownership
+  in FastAPI endpoints.
+- **[Beta]** Provide a profile dashboard for the signed-in user and their
+  reports.
+- **[Beta]** Deploy the integrated frontend and backend.
+- **[Beta]** Configure secrets and production HTTPS without committing
+  credentials.
 
 ## 6. Primary user journeys
 
-1. **Find a report:** A visitor or member opens the report list, filters by
-   lost/found type, category, or location, and views a report's public details.
-2. **Publish a report:** A signed-in member submits a validated report. The
-   report is associated with that member and appears as open.
-3. **Claim found property:** A signed-in member submits a claim with
-   non-sensitive identifying details. The reporter reviews it privately and
-   approves or rejects it.
-4. **Complete a return:** After arranging the handoff, the reporter marks the
-   found report resolved. The report is no longer presented as open.
-5. **Moderate content:** An administrator reviews reported or inappropriate
-   content and takes an authorized action. The action is recorded for audit.
+1. **[MVP] Create a report:** A user submits a report in the web form; the
+   frontend sends it to FastAPI; the validated report is saved and appears in
+   the report list.
+2. **[MVP] Find and maintain reports:** A user browses/filters reports, opens
+   a detail view, edits a report, or deletes it.
+3. **[Beta] Sign in and manage profile:** A member registers or logs in,
+   opens their dashboard, and views their own profile and reports.
+4. **[Beta] Enforce permissions:** A member makes an authorized request; a
+   request without authentication or the necessary scope is rejected by the
+   API, even if issued outside the UI.
+5. **[Beta] Demonstrate deployment:** A user accesses the deployed application
+   over HTTPS and the frontend communicates with the backend through the
+   configured API routes.
 
 ## 7. Product requirements
 
-- Provide a consistent, responsive interface for registration, authentication,
-  report discovery, report management, and claims.
-- Clearly distinguish lost reports from found reports and open reports from
-  resolved or archived reports.
-- Keep claim descriptions and account contact details visible only to
-  authorized participants and administrators.
-- Show users actionable validation and authorization errors without exposing
-  stack traces or internal data.
-- Make protected actions unavailable in the interface when the current user's
-  permissions do not allow them; the backend remains the authority.
-- Provide API documentation and a health endpoint for development and
-  deployment checks.
+- **[MVP]** Keep the report workflow small enough to complete and demonstrate
+  locally by the mid-term.
+- **[MVP]** Use React + TypeScript for the interface and FastAPI + Python for
+  REST endpoints.
+- **[MVP]** Keep report data and forms consistent between the frontend and
+  backend.
+- **[Beta]** Make the backend the authority for authentication, roles,
+  permissions, and ownership checks.
+- **[Beta]** Show profile and report information appropriate to the signed-in
+  user.
+- **[Beta]** Deploy the application without exposing secrets in source or
+  browser code.
 
 ## 8. Success criteria
 
-- A member can register, log in, create a report, find it in the list, edit or
-  close their own report, and cannot modify another member's report.
-- A member can submit a claim against a found report; only the report owner or
-  an authorized administrator can review it.
-- Requests without valid authentication or the required permission are rejected
-  by the API, including requests made outside the UI.
-- The frontend builds with TypeScript checks enabled, and backend tests cover
-  successful and denied access paths.
-- The core flows work through the browser against the FastAPI service without
-  hard-coded cross-origin production URLs.
+- **[MVP]** The app runs locally using documented commands.
+- **[MVP]** Create, read, update, and delete report operations work end to end
+  through the browser and REST API.
+- **[MVP]** Invalid report input is rejected and the UI displays an error
+  instead of falsely reporting success.
+- **[Beta]** Missing/invalid credentials receive `401`; authenticated users
+  lacking permission receive `403`.
+- **[Beta]** A member cannot use the API to access or change another member's
+  protected profile/report data.
+- **[Beta]** Admin-only operations require the appropriate role and scope.
+- **[Beta]** The final demonstration is available from the deployed app over
+  HTTPS.
 
 ## 9. Risks and assumptions
 
-- The course brief does not specify campus identity verification. The initial
-  design treats registration as application-level identity and should not be
-  represented as institutional verification.
-- Users may submit misleading or sensitive descriptions. Validation, moderation,
-  privacy-conscious defaults, and a report-resolution path are required.
-- A lost-and-found application may attract spam or fraudulent claims.
-  Rate-limiting, audit records, and moderation are recommended before public
-  deployment.
-- Product details such as retention duration and whether visitors may browse
-  reports should be confirmed with the instructor or project stakeholders.
+- **[MVP]** Local persistence technology should remain easy to run for the
+  mid-term demo; deployment-grade data storage is not a prerequisite.
+- **[Beta]** Role assignment must use a trusted administrative path, not a
+  user-editable registration field.
+- **[Beta]** Hosting configuration and database availability must be confirmed
+  before final deployment.
+- **[MVP and Beta]** The project does not verify institutional affiliation.
+- **[MVP and Beta]** Keep personal contact details out of public report
+  responses unless an explicit privacy decision is made.
