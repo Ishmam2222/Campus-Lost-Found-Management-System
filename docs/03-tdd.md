@@ -61,7 +61,7 @@ docs/
 
 ```
 
-
+```
 Keep the structure small; split files further only when the implementation needs it.
 
 
@@ -165,7 +165,8 @@ The existing report endpoints become protected in Beta. The API checks the user'
 
 
 ```markdown
-## Deployment and configuration
+```
+### Deployment and configuration
 
 ### MVP — local development
 
