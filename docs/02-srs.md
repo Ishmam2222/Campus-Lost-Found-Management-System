@@ -81,3 +81,26 @@ This document lists the requirements for the Campus Lost & Found application.
 - A member cannot perform admin-only actions or access another member's protected data.
 - The backend enforces the required scopes and roles.
 - The application is deployed and accessible over HTTPS.
+
+## Use cases
+
+### MVP use cases
+
+```mermaid
+flowchart LR
+    Member["Campus member"]
+    Create["Create report"]
+    Browse["Browse reports"]
+    View["View report"]
+    Update["Update report"]
+    Delete["Delete report"]
+
+    Member --> Create
+    Member --> Browse
+    Member --> View
+    Member --> Update
+    Member --> Delete
+
+<img width="902" height="654" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/be30e98a-31d6-40e4-81ac-a8af42da9fb7" />
+
+
