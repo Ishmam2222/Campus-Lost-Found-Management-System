@@ -161,3 +161,37 @@ The existing report endpoints become protected in Beta. The API checks the user'
 - **Beta:** Test login, roles, scopes, and denied access for unauthorized users.
 
 - **Beta:** Check that the deployed app uses HTTPS and does not expose secrets.
+
+
+
+```markdown
+## Deployment and configuration
+
+### MVP — local development
+
+- Run the FastAPI backend locally and the React frontend with Vite.
+- Configure Vite to proxy frontend `/api` requests to the local backend.
+- Use a local database for report data.
+- Keep local environment settings in an untracked `.env` file when needed.
+
+### Beta — deployment
+
+- Deploy the frontend and FastAPI backend using the repository's Vercel
+  configuration or another course-approved platform.
+- Configure the deployed frontend so API requests reach the backend through
+  the `/api` routes.
+- Use a persistent database suitable for the hosting platform.
+- Serve production traffic over HTTPS.
+- Store deployment configuration and secrets in the hosting provider's
+  environment settings, not in source code or frontend files.
+
+### Configuration
+
+| Setting | Use | Release |
+|---|---|---|
+| `DATABASE_URL` | Database connection string | MVP locally; Beta deployment |
+| `JWT_SECRET` | Signs and verifies authentication tokens | Beta |
+| `FRONTEND_ORIGIN` | Allowed frontend origin, if separate CORS configuration is needed | Beta |
+
+The application should fail clearly when required deployment settings are
+missing. Never commit real credentials or secret values to Git.
