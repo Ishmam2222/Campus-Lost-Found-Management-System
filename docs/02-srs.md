@@ -102,3 +102,15 @@ flowchart LR
     Member --> Update
     Member --> Delete
 ```
+Beta use cases
+
+```mermaid
+flowchart LR
+    Guest(Guest) --> Reg(Register / log in)
+
+    Member(Signed-in member) --> Dash(View profile dashboard)
+    Member --> Permitted(Manage permitted reports)
+
+    Admin(Administrator) --> Permitted
+    Admin --> ManageAll(Manage reports and users)
+```
