@@ -35,6 +35,43 @@ Lost-item information is often shared across chats or notice boards, making it h
 | Registered member | Sign in and manage their own profile and reports. | Beta |
 | Administrator | Use authorized administrative permissions. | Beta |
 
+## Target users
+
+| User | Need | Release |
+| Campus member | Create and browse lost-and-found reports. | MVP |
+| Registered member | Sign in and manage their profile and own reports. | Beta |
+| Administrator | Manage reports and use admin-only permissions. | Beta |
+
+## User stories
+
+### MVP
+- As a campus member, I want to create a lost or found report so others can find the information.
+- As a campus member, I want to browse and view reports so I can look for a lost item.
+- As a campus member, I want to update or delete a report so I can correct or remove it.
+
+### Beta
+- As a member, I want to register and sign in so I can access my account.
+- As a member, I want to view my profile and reports in a dashboard.
+- As an administrator, I want permissions to manage reports and users.
+- As a member, I want the API to prevent me from performing actions I am not allowed to do.
+
+## Milestones
+
+### MVP — Mid-term
+1. Complete project documentation.
+2. Create the report data model and local database.
+3. Implement and test report CRUD REST endpoints.
+4. Connect the React frontend to the FastAPI backend.
+5. Demonstrate the application running locally.
+
+### Beta — Final
+1. Add registration, login, and user profiles.
+2. Add member/admin roles and backend permission checks.
+3. Add security scopes and protect report operations.
+4. Deploy the integrated application.
+5. Demonstrate the deployed application.
+
+
 ## 5. Scope
 
 ### MVP — Mid-term
