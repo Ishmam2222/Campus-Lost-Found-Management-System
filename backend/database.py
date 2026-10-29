@@ -5,11 +5,34 @@ from typing import Annotated
 from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine
 
-# Use DATABASE_URL from environment (e.g. Supabase) or fallback to local SQLite
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./lost_and_found.db")
+# Determine Database URL
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
-engine = create_engine(DATABASE_URL, echo=False, connect_args=connect_args)
+if not DATABASE_URL:
+    # On Vercel serverless, root directory is read-only; /tmp is the only writable directory.
+    if os.getenv("VERCEL"):
+        DATABASE_URL = "sqlite:////tmp/lost_and_found.db"
+    else:
+        DATABASE_URL = "sqlite:///./lost_and_found.db"
+
+# Handle SQLite vs PostgreSQL / Supabase
+if DATABASE_URL.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
+    engine = create_engine(DATABASE_URL, echo=False, connect_args=connect_args)
+else:
+    # Fix legacy postgres:// URL format to postgresql://
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+    try:
+        from sqlalchemy.pool import NullPool
+        engine = create_engine(
+            DATABASE_URL,
+            poolclass=NullPool,
+            connect_args={"prepare_threshold": None},
+        )
+    except Exception:
+        engine = create_engine(DATABASE_URL)
 
 
 def create_db_and_tables() -> None:
