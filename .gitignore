@@ -2,6 +2,8 @@
 __pycache__/
 .venv/
 *.py[cod]
+*.db
+lost_and_found.db
 
 # Node
 node_modules/
