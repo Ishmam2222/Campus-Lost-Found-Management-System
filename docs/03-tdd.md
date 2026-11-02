@@ -36,13 +36,13 @@ Browser
 
 For local development, Vite proxies `/api` requests to the FastAPI server. In Beta, deployed frontend requests use the configured API routes.
 
-
+```
 ## 4. Project structure
 
 Plain text
 
 
-```
+
 backend/
   main.py             # FastAPI application
   items.py            # Report endpoints and data operations (MVP)
