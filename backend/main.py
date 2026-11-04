@@ -11,6 +11,8 @@ app = FastAPI(
     title="Campus Lost & Found API",
     description="REST API to manage lost and found reports on campus.",
     version="1.0.0",
+    docs_url="/api/docs",
+    openapi_url="/api/openapi.json",
 )
 
 # Initialize database tables on import (works locally and in serverless/Vercel)
