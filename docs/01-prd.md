@@ -1,125 +1,174 @@
-# Product Requirements Document (PRD) — Campus Lost & Found
+# Product Requirements Document (PRD)
+## Campus Lost & Found Management System
 
-| Field | Value |
-
+| **Field** | **Details** |
+|---|---|
 | Product | Campus Lost & Found Management System |
-| Releases | MVP — Mid-term; Beta — Final |
+| Releases | MVP (Mid-term) and Beta (Final) |
 | Status | Draft |
-| Related documents | SRS, TDD |
+| Related Documents | SRS, TDD |
+| Frontend | React with TypeScript |
+| Backend | FastAPI with Python |
+
+---
 
 ## 1. Purpose
 
-Campus Lost & Found helps campus members report lost or found items and find information about reported belongings. The frontend uses React with TypeScript; the backend uses FastAPI with Python.
+Campus Lost & Found is a web-based application designed to help campus members report lost and found items and easily access information about reported belongings.
 
-The project will be built in two releases: a simple, locally running MVP and a Beta that adds authentication, permissions, and deployment.
+The frontend will be developed using **React with TypeScript**, while the backend will use **FastAPI with Python**.
 
-## 2. Problem
+The project will be developed in two releases:
 
-Lost-item information is often shared across chats or notice boards, making it hard to find and keep up to date. A shared application provides one place to create and view lost-and-found reports.
+- **MVP (Mid-term):** A basic application that supports lost-and-found report management and runs locally.
+- **Beta (Final):** An enhanced version that introduces authentication, user profiles, role-based permissions, security scopes, and deployment.
 
-## 3. Goals
+## 2. Problem Statement
+
+Information about lost and found items is often shared through group chats, social media, or physical notice boards. This makes it difficult for students to find relevant information and keep track of reported items.
+
+Campus Lost & Found aims to solve this problem by providing a centralized platform where campus members can create, browse, view, update, and manage lost-and-found reports.
+
+## 3. Project Goals
 
 | Goal | Release |
-
+|---|---|
 | Create, view, update, and delete lost-and-found reports through REST APIs. | MVP |
 | Run the frontend and backend locally as an integrated application. | MVP |
-| Add account authentication and a user profile dashboard. | Beta |
-| Protect actions using member/admin roles and security scopes. | Beta |
+| Implement user authentication and a profile dashboard. | Beta |
+| Introduce member and admin roles with permission checks. | Beta |
+| Implement security scopes to protect API operations. | Beta |
 | Deploy the application for the final demonstration. | Beta |
 
-## 4. Users
+## 4. Target Users
 
-| User | Need | Release |
+| User | Description | Release |
+|---|---|---|
+| Campus Member | Can create, browse, and view lost-and-found reports. | MVP |
+| Registered Member | Can sign in and manage their profile and own reports. | Beta |
+| Administrator | Can manage reports and perform authorized administrative actions. | Beta |
 
-| Campus member | Create and browse lost-and-found reports. | MVP |
-| Registered member | Sign in and manage their own profile and reports. | Beta |
-| Administrator | Use authorized administrative permissions. | Beta |
+### 4.1 User Stories
 
-## Target users
+**MVP**
 
-| User | Need | Release |
-| Campus member | Create and browse lost-and-found reports. | MVP |
-| Registered member | Sign in and manage their profile and own reports. | Beta |
-| Administrator | Manage reports and use admin-only permissions. | Beta |
+- As a campus member, I want to create a lost or found report so that others can find information about the item.
+- As a campus member, I want to browse and view reports so that I can search for lost belongings.
+- As a campus member, I want to update or delete a report so that I can correct or remove outdated information.
 
-## User stories
+**Beta**
 
-### MVP
-- As a campus member, I want to create a lost or found report so others can find the information.
-- As a campus member, I want to browse and view reports so I can look for a lost item.
-- As a campus member, I want to update or delete a report so I can correct or remove it.
+- As a member, I want to register and sign in so that I can access my personal account.
+- As a member, I want to view my profile and reports through a dashboard so that I can manage my information.
+- As an administrator, I want administrative permissions so that I can manage reports and users.
+- As a member, I want the API to restrict unauthorized actions so that my account and the application remain secure.
 
-### Beta
-- As a member, I want to register and sign in so I can access my account.
-- As a member, I want to view my profile and reports in a dashboard.
-- As an administrator, I want permissions to manage reports and users.
-- As a member, I want the API to prevent me from performing actions I am not allowed to do.
+## 5. Project Scope
 
-## Milestones
+### 5.1 MVP — Mid-term Release
 
-### MVP — Mid-term
-1. Complete project documentation.
-2. Create the report data model and local database.
-3. Implement and test report CRUD REST endpoints.
-4. Connect the React frontend to the FastAPI backend.
-5. Demonstrate the application running locally.
+The MVP will focus on the core lost-and-found report management functionality.
 
-### Beta — Final
-1. Add registration, login, and user profiles.
-2. Add member/admin roles and backend permission checks.
-3. Add security scopes and protect report operations.
-4. Deploy the integrated application.
-5. Demonstrate the deployed application.
+**Included Features:**
 
-
-## 5. Scope
-
-### MVP — Mid-term
-
-- Create, list, view, update, and delete lost/found reports.
-- Validate report information and return clear API errors.
-- Use the React frontend with the FastAPI REST API.
+- Create lost and found reports.
+- List and browse available reports.
+- View individual report details.
+- Update existing reports.
+- Delete reports.
+- Validate report information and return clear API error messages.
+- Integrate the React frontend with the FastAPI REST API.
 - Run the application locally.
-- No login or role-based permissions are required in this release.
 
-### Beta — Final
+**Limitations:**
 
-- Register, log in, and log out.
-- Provide a user profile dashboard.
-- Add member and admin roles.
-- Enforce permissions and security scopes in the backend.
-- Deploy the application.
+- No user registration or login.
+- No role-based permissions.
+- No authentication requirements.
 
-## 6. Features
+### 5.2 Beta — Final Release
+
+The Beta release will extend the MVP by introducing authentication, authorization, and deployment.
+
+**Included Features:**
+
+- User registration and login.
+- User logout.
+- User profile dashboard.
+- Member and administrator roles.
+- Backend permission checks.
+- Security scopes for protected API operations.
+- Application deployment for the final demonstration.
+
+## 6. Functional Features and Priorities
 
 | Feature | Release | Priority |
+|---|---|---|
+| Create lost or found reports | MVP | Must Have |
+| List and view reports | MVP | Must Have |
+| Update and delete reports | MVP | Must Have |
+| Input validation and error handling | MVP | Must Have |
+| User registration and login | Beta | Must Have |
+| User profile dashboard | Beta | Must Have |
+| Member and admin roles | Beta | Must Have |
+| Backend permission checks | Beta | Must Have |
+| Security scopes | Beta | Must Have |
+| Application deployment | Beta | Must Have |
 
-| Create a lost or found report | MVP | Must |
-| List and view reports | MVP | Must |
-| Update and delete reports | MVP | Must |
-| Validate input and show errors | MVP | Must |
-| User registration and login | Beta | Must |
-| Profile dashboard | Beta | Must |
-| Member/admin roles and permission checks | Beta | Must |
-| Security scopes and deployment | Beta | Must |
+## 7. Milestones and Deliverables
 
-## 7. Success criteria
+### 7.1 MVP — Mid-term
 
-### MVP
+1. Complete project documentation (PRD, SRS, and TDD).
+2. Design the report data model and configure the local database.
+3. Implement and test report CRUD REST API endpoints.
+4. Develop the React frontend.
+5. Integrate the frontend with the FastAPI backend.
+6. Test the core application functionality.
+7. Demonstrate the application running locally.
 
-- The application runs locally.
-- Users can create, view, update, and delete reports through the frontend and REST API.
-- Invalid report data is rejected with a clear error.
+### 7.2 Beta — Final
 
-### Beta
+1. Implement user registration and login.
+2. Develop user profiles and the dashboard.
+3. Introduce member and administrator roles.
+4. Implement backend permission checks.
+5. Add security scopes and protect report operations.
+6. Test authentication and authorization.
+7. Deploy the integrated application.
+8. Demonstrate the deployed application.
 
-- Users can register and log in.
-- A member cannot perform actions they are not authorized to do.
-- The application is deployed and available for the final demonstration.
+## 8. Success Criteria
 
-## 8. Assumptions
+### 8.1 MVP Success Criteria
 
-- The application is intended for one campus.
+The MVP will be considered successful when:
+
+- The application runs successfully in a local environment.
+- Users can create, view, update, and delete reports through the frontend.
+- All report CRUD operations work correctly through the REST API.
+- Invalid report information is rejected with appropriate error messages.
+- The React frontend communicates successfully with the FastAPI backend.
+
+### 8.2 Beta Success Criteria
+
+The Beta release will be considered successful when:
+
+- Users can register and log in successfully.
+- Users can access their profile dashboard.
+- Members can perform only the actions they are authorized to perform.
+- Administrators have the required administrative permissions.
+- Protected API operations enforce the appropriate security scopes.
+- The application is deployed and accessible for the final demonstration.
+
+## 9. Assumptions and Constraints
+
+- The application is designed primarily for a single campus.
 - MVP report management does not require user accounts.
-- Authentication, roles, permissions, and deployment are Beta features.
-- The project will stay focused on the required lost-and-found features.
+- Authentication and authorization will be introduced in the Beta release.
+- Member and administrator roles will be implemented in the Beta release.
+- Deployment is planned for the final release.
+- The project will remain focused on the core lost-and-found management requirements.
+
+---
+
