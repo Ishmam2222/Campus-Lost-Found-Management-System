@@ -3,13 +3,13 @@ from collections.abc import Iterator
 from typing import Annotated
 
 from fastapi import Depends
+from sqlalchemy import text
 from sqlmodel import Session, SQLModel, create_engine
 
 # Determine Database URL
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
-    # On Vercel serverless, root directory is read-only; /tmp is the only writable directory.
     if os.getenv("VERCEL"):
         DATABASE_URL = "sqlite:////tmp/lost_and_found.db"
     else:
@@ -20,12 +20,12 @@ if DATABASE_URL.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
     engine = create_engine(DATABASE_URL, echo=False, connect_args=connect_args)
 else:
-    # Fix legacy postgres:// URL format to postgresql://
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
     try:
         from sqlalchemy.pool import NullPool
+
         engine = create_engine(
             DATABASE_URL,
             poolclass=NullPool,
@@ -36,8 +36,24 @@ else:
 
 
 def create_db_and_tables() -> None:
-    """Create all tables in the database if they don't already exist."""
+    """Create all tables in the database and apply lightweight column upgrades."""
     SQLModel.metadata.create_all(engine)
+    with engine.begin() as conn:
+        for ddl in (
+            "ALTER TABLE item ADD COLUMN owner_id INTEGER",
+            "ALTER TABLE item ADD COLUMN owner_name VARCHAR(100) DEFAULT 'Campus Member'",
+            "ALTER TABLE item ADD COLUMN group_id INTEGER",
+            "ALTER TABLE item ADD COLUMN assignee_id INTEGER",
+            "ALTER TABLE item ADD COLUMN assignee_name VARCHAR(100)",
+            "ALTER TABLE campus_user ADD COLUMN banned_at TIMESTAMP",
+            "ALTER TABLE campus_user ADD COLUMN failed_login_count INTEGER DEFAULT 0",
+            "ALTER TABLE campus_user ADD COLUMN locked_until TIMESTAMP",
+            "ALTER TABLE campus_user ADD COLUMN last_login_at TIMESTAMP",
+        ):
+            try:
+                conn.execute(text(ddl))
+            except Exception:
+                pass
 
 
 def get_session() -> Iterator[Session]:
