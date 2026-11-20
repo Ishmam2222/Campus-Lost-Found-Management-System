@@ -33,36 +33,42 @@ Browser
         └── /api requests
               └── FastAPI backend
                     └── Database
+```
 
 For local development, Vite proxies `/api` requests to the FastAPI server. In Beta, deployed frontend requests use the configured API routes.
 
-```
+
 ## 4. Project structure
 
-Plain text
-
-
-
+```text
 backend/
-  main.py             # FastAPI application
-  items.py            # Report endpoints and data operations (MVP)
-  auth.py             # Authentication and permissions (Beta)
+  main.py             # FastAPI application entrypoint
+  models.py           # SQLModel tables and Pydantic schemas
+  database.py         # Database engine and session management
+  security.py         # Argon2/PBKDF2 password hashing, JWT tokens, and RBAC dependencies
+  crud.py             # Database repository queries
+  service.py          # Business logic and permission enforcement
+  routers/
+    items.py          # Report CRUD endpoints
+    auth.py           # Registration, login, and logout endpoints
+    profile.py        # User profile and password endpoints
+    admin.py          # Admin statistics, roles, and user management
 
 frontend/
   src/
-    App.tsx           # Main application
-    api.ts            # Calls to the backend
-    components/       # Report list and forms
+    App.tsx           # Root application state and navigation
+    api.ts            # REST API client functions
+    types.ts          # TypeScript interfaces
+    components/       # Reusable UI components (Header, FilterBar, ItemCard, ItemList, Modals)
+    pages/            # Application pages (LoginPage, SignupPage, ProfilePage, AdminPage)
 
 docs/
-  PRD.md
-  SRS.md
-  TDD.md
-
+  01-prd.md
+  02-srs.md
+  03-tdd.md
 ```
 
-```
-Keep the structure small; split files further only when the implementation needs it.
+Keep the structure modular and separated by layer.
 
 
 ## 5. Data model
@@ -162,11 +168,7 @@ The existing report endpoints become protected in Beta. The API checks the user'
 
 - **Beta:** Check that the deployed app uses HTTPS and does not expose secrets.
 
-
-
-```markdown
-```
-### Deployment and configuration
+## 9. Deployment and configuration
 
 ### MVP — local development
 
