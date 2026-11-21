@@ -1,22 +1,84 @@
+import logging
+import os
 from pathlib import Path
-from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query, status
-from sqlmodel import select
+from fastapi import FastAPI, Request, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlmodel import Session
 
-from database import SessionDep, create_db_and_tables
-from models import Item, ItemCreate, ItemRead, ItemUpdate
+from database import create_db_and_tables, engine
+from routers.admin import router as admin_router
+from routers.auth import router as auth_router
+from routers.groups import router as groups_router
+from routers.items import router as items_router
+from routers.profile import router as profile_router
+import service
+
+logger = logging.getLogger("campus_lost_found")
 
 app = FastAPI(
     title="Campus Lost & Found API",
-    description="REST API to manage lost and found reports on campus.",
-    version="1.0.0",
+    description="Secure multi-user REST API with JWT authentication, RBAC, recovery groups, and admin audit dashboard.",
+    version="2.0.0",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
 
-# Initialize database tables on import (works locally and in serverless/Vercel)
-create_db_and_tables()
+# Restrict CORS to configured frontend origin and local development ports
+FRONTEND_ORIGIN = os.getenv(
+    "FRONTEND_ORIGIN", "https://campus-lost-found-management-system.vercel.app"
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        FRONTEND_ORIGIN,
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
+)
+
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
+
+
+# Register modular feature routers
+app.include_router(items_router)
+app.include_router(auth_router)
+app.include_router(profile_router)
+app.include_router(groups_router)
+app.include_router(admin_router)
+
+# Initialize database tables and seed default test accounts on import
+try:
+    create_db_and_tables()
+    with Session(engine) as session:
+        service.seed_initial_data(session)
+except Exception as e:
+    logger.error("Failed to initialize database tables: %s", e)
+
+
+# Never send stack traces or internal database details to the client (Section 2.4)
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(
+    request: Request, exc: Exception
+) -> JSONResponse:
+    logger.error(
+        "Unhandled error on %s %s", request.method, request.url.path, exc_info=exc
+    )
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={"detail": "Internal server error"},
+    )
 
 
 @app.get("/api/health")
@@ -25,118 +87,6 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-# -------------------------------------------------------------
-# CRUD Endpoints for Lost & Found Reports
-# -------------------------------------------------------------
-
-
-@app.post(
-    "/api/items",
-    response_model=ItemRead,
-    status_code=status.HTTP_201_CREATED,
-    summary="Create a new lost or found report",
-)
-def create_item(item_data: ItemCreate, session: SessionDep) -> Item:
-    """Create a new report in the database."""
-    item = Item.model_validate(item_data)
-    session.add(item)
-    session.commit()
-    session.refresh(item)
-    return item
-
-
-@app.get(
-    "/api/items",
-    response_model=list[ItemRead],
-    summary="List all reports (Read List)",
-)
-def list_items(
-    session: SessionDep,
-    type: Optional[str] = Query(
-        None, description="Filter by report type: 'lost' or 'found'"
-    ),
-    category: Optional[str] = Query(None, description="Filter by category"),
-    search: Optional[str] = Query(None, description="Search in title or description"),
-) -> list[Item]:
-    """Retrieve all reports with optional filters."""
-    query = select(Item).order_by(Item.id.desc())
-
-    if type:
-        query = query.where(Item.type == type.lower())
-    if category:
-        query = query.where(Item.category == category)
-    if search:
-        search_filter = f"%{search}%"
-        query = query.where(
-            (Item.title.ilike(search_filter)) | (Item.description.ilike(search_filter))
-        )
-
-    return list(session.exec(query).all())
-
-
-@app.get(
-    "/api/items/{item_id}",
-    response_model=ItemRead,
-    summary="Get single report details (Read Single)",
-)
-def get_item(item_id: int, session: SessionDep) -> Item:
-    """Retrieve a single report by its ID."""
-    item = session.get(Item, item_id)
-    if not item:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Report with ID {item_id} not found",
-        )
-    return item
-
-
-@app.put(
-    "/api/items/{item_id}",
-    response_model=ItemRead,
-    summary="Update a report (Update)",
-)
-def update_item(
-    item_id: int, item_update: ItemUpdate, session: SessionDep
-) -> Item:
-    """Update fields of an existing report."""
-    item = session.get(Item, item_id)
-    if not item:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Report with ID {item_id} not found",
-        )
-
-    update_data = item_update.model_dump(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(item, field, value)
-
-    session.add(item)
-    session.commit()
-    session.refresh(item)
-    return item
-
-
-@app.delete(
-    "/api/items/{item_id}",
-    summary="Delete a report (Delete)",
-)
-def delete_item(item_id: int, session: SessionDep) -> dict[str, str | int]:
-    """Delete a report from the database."""
-    item = session.get(Item, item_id)
-    if not item:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Report with ID {item_id} not found",
-        )
-
-    session.delete(item)
-    session.commit()
-    return {"message": "Report deleted successfully", "id": item_id}
-
-
-# -------------------------------------------------------------
-# Static Frontend Serving (for Vercel / Production builds)
-# -------------------------------------------------------------
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 
 if FRONTEND_DIR.is_dir():
