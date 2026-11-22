@@ -1,4 +1,4 @@
-# Software Requirements Specification (SRS)
+﻿# Software Requirements Specification (SRS)
 ## Campus Lost & Found Management System
 
 | **Field** | **Details** |
@@ -72,6 +72,38 @@ The application will be developed in two releases:
 | FR-12 | The application shall be deployed and accessible for the final demonstration. | Beta |
 
 ---
+
+### 3.3 Permission matrix — Beta
+
+| Action | Guest | Registered User (`user`) | Campus Staff (`moderator`) | Administrator (`admin`) |
+|---|---|---|---|---|
+| Browse / search public lost & found reports | Yes | Yes | Yes | Yes |
+| View single report details | Yes | Yes | Yes | Yes |
+| Sign up, log in | Yes | — | — | — |
+| Refresh token, log out | No | Yes | Yes | Yes |
+| View own profile, change password | No | Yes | Yes | Yes |
+| Create a new report | No | Yes | Yes | Yes |
+| Edit / delete own report | No | Yes | Yes | Yes |
+| Edit / delete another user's report | No | No (`403`) | Yes (Desk items) | Yes (All reports) |
+| Manage campus team desks (`Security`, `Library`, `IT`) | No | No (`403`) | Yes | Yes |
+| List all users, change user roles | No | No (`403`) | No (`403`) | Yes |
+| View admin dashboard metrics & stats | No | No (`403`) | No (`403`) | Yes |
+
+### 3.4 Status codes
+
+| Case | Code | Release |
+|---|---|---|
+| Resource created successfully | `201 Created` | MVP |
+| Read or update operation succeeded | `200 OK` | MVP |
+| Deleted successfully or logged out | `204 No Content` / `200 OK` | MVP & Beta |
+| Validation failed (e.g. empty title, bad type) | `422 Unprocessable Content` | MVP |
+| Resource not found | `404 Not Found` | MVP |
+| Duplicate / business conflict | `409 Conflict` | MVP & Beta |
+| Unexpected server error | `500 Internal Server Error` | MVP |
+| Missing, invalid, or expired JWT token | `401 Unauthorized` | Beta |
+| Insufficient role permissions or ownership check failed | `403 Forbidden` | Beta |
+| Account locked due to repeated failed login attempts (5 times) | `429 Too Many Requests` | Beta |
+
 
 ## 4. Non-Functional Requirements
 
@@ -174,4 +206,23 @@ flowchart LR
 
 ---
 
-**End of Software Requirements Specification (SRS)**
+## 7. Traceability
+
+| User Story | Requirements | API Endpoint | Release |
+|---|---|---|---|
+| Create lost or found report | FR-01, FR-05 | `POST /api/items` | MVP |
+| List & search reports | FR-02, FR-05 | `GET /api/items` | MVP |
+| View single report | FR-02, FR-05 | `GET /api/items/{id}` | MVP |
+| Update report | FR-03, FR-05 | `PUT /api/items/{id}` | MVP |
+| Delete report | FR-03, FR-05 | `DELETE /api/items/{id}` | MVP |
+| API health check | FR-06 | `GET /api/health` | MVP |
+| User registration | FR-07, FR-09 | `POST /api/auth/register` | Beta |
+| User login & tokens | FR-07, FR-11 | `POST /api/auth/login` | Beta |
+| Session refresh | FR-07, FR-11 | `POST /api/auth/refresh` | Beta |
+| User logout & revocation | FR-07, FR-11 | `POST /api/auth/logout` | Beta |
+| Profile & change password | FR-08, FR-10 | `GET /api/profile`, `PUT /api/profile/password` | Beta |
+| Team desk collaboration | FR-10, FR-11 | `GET /api/groups` | Beta |
+| Admin user & role management | FR-09, FR-10 | `GET /api/admin/users`, `PATCH /api/admin/users/{id}/role` | Beta |
+| Admin dashboard stats | FR-10 | `GET /api/admin/stats` | Beta |
+
+---
