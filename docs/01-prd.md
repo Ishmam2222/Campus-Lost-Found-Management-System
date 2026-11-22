@@ -1,4 +1,4 @@
-# Product Requirements Document (PRD)
+﻿# Product Requirements Document (PRD)
 ## Campus Lost & Found Management System
 
 | **Field** | **Details** |
@@ -172,3 +172,28 @@ The Beta release will be considered successful when:
 
 ---
 
+## 10. Milestones
+
+### MVP — Mid-term
+
+| Milestone | Deliverable |
+|---|---|
+| M1 — Docs | [PRD](01-prd.md), [SRS](02-srs.md) and [TDD](03-tdd.md) (covering MVP and Beta) approved |
+| M2 — Data layer | Report item model and SQLite database connection |
+| M3 — API | Core CRUD endpoints with validation |
+| M4 — Mid demo | Live on Vercel, tagged 0.1.0 (MVP) |
+
+### Beta — Final
+
+| Milestone | Deliverable |
+|---|---|
+| B1 — Auth | Sign up, login, logout, refresh session, password change; items owned by a user; database migrations in place |
+| B2 — RBAC + admin | user, moderator, and dmin roles, admin endpoints, admin dashboard stats, permission checks on every endpoint |
+| B3 — Campus desks | Team Desks (Security Desk, Library Front Desk, IT Helpdesk) for staff |
+| B4 — Security | Password hashing, token revocation blacklist, 5-attempt login lockout, security headers |
+| B5 — Final demo | Beta live on Vercel, tagged 0.2.0 (Beta) |
+
+## 11. Release dependencies
+
+- The Beta is built on top of the MVP: the same /api/items endpoints remain, but in Beta they require login and enforce ownership rules (users can only edit/delete their own reports, while admins and desk moderators can manage all).
+- Database migrations and schema evolution are introduced for Beta so the schema grows to support user accounts, security tokens, team desks, and report ownership.
