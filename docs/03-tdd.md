@@ -1,4 +1,4 @@
-# Technical Design Document (TDD) — Campus Lost & Found
+﻿# Technical Design Document (TDD) — Campus Lost & Found
 
 | Field | Value |
 |---|---|
@@ -198,3 +198,79 @@ The existing report endpoints become protected in Beta. The API checks the user'
 
 The application should fail clearly when required deployment settings are
 missing. Never commit real credentials or secret values to Git.
+
+## 10. Auth and RBAC design — Beta
+
+### 10.1 Token design
+- **Access Token:** Short-lived JWT (15 minutes). Carries `sub` (user email), `id` (user ID), `role` (`user`, `moderator`, `admin`), `name`, `jti` (unique JWT id), and `exp` (expiration). Signed using HMAC-SHA256 (`HS256`) with `JWT_SECRET`.
+- **Refresh Token:** Longer-lived JWT (7 days). Exchanged via `POST /api/auth/refresh` to issue a new access token and rotating refresh token.
+- **Revocation / Logout:** Calling `POST /api/auth/logout` stores the token's `jti` in the `revoked_tokens` table. In-flight tokens matching revoked `jti` are immediately rejected with HTTP `401`.
+
+### 10.2 Lockout and brute-force protection
+- Every user record tracks `failed_attempts` (integer) and `locked_until` (datetime).
+- On each failed login password attempt, `failed_attempts` increments by 1.
+- When `failed_attempts >= 5`, `locked_until` is set to `now + 15 minutes` and an error HTTP `429 Too Many Requests` is returned.
+- Successful login resets `failed_attempts = 0` and clears `locked_until`.
+
+### 10.3 RBAC architecture & dependencies
+Permissions are enforced on the backend via FastAPI dependencies in `backend/rbac.py` and `backend/security.py`:
+- `get_current_user`: Validates JWT signature, expiration, and checks token revocation blacklist. Returns the authenticated `User` model.
+- `require_role(["admin"])`: Ensures `current_user.role == "admin"`; returns `403 Forbidden` if insufficient.
+- `require_role(["moderator", "admin"])`: Allows desk staff and administrators access to desk and moderate endpoints.
+- **Item Ownership Enforcement:** Handled in `backend/service.py`:
+  - `user`: Can only update or delete an item if `item.owner_id == current_user.id`.
+  - `moderator` / `admin`: Authorized to update or delete any report, resolve status, or reassign desks.
+
+### 10.4 Admin dashboard stats
+One endpoint (`GET /api/admin/stats`) aggregating database metrics:
+- Total registered users and role distribution (`user`, `moderator`, `admin`).
+- Total lost reports vs. total found reports.
+- Total resolved reports vs. active reports.
+- Recent 7-day activity volume.
+
+## 11. Security — Beta
+
+| Area | Implementation Design |
+|---|---|
+| Passwords | Salted Argon2 / PBKDF2 hashing via `passlib`; plain text passwords are never stored or logged |
+| JWT Tokens | Cryptographically signed with `HS256`; `JWT_SECRET` loaded strictly from environment variables |
+| Token Revocation | Database `revoked_tokens` blacklist; tokens cannot be reused after logout |
+| Brute Force | 5 failed login attempts trigger an automatic 15-minute account lockout (`429`) |
+| Role Security | Default registration always assigns `user`; `admin` and `moderator` roles cannot be self-assigned |
+| CORS & Headers | Vercel deployment enforces HTTPS; Vite proxies `/api` during local development |
+| SQL Injection | Prevented by SQLModel / SQLAlchemy parameterised queries (no raw string concatenation) |
+| Data Exposure | Response models (`UserRead`, `ItemRead`) explicitly exclude `password_hash` and internal security fields |
+
+```json
+"headers": [
+  {
+    "source": "/(.*)",
+    "headers": [
+      { "key": "X-Content-Type-Options", "value": "nosniff" },
+      { "key": "X-Frame-Options", "value": "DENY" },
+      { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+    ]
+  }
+]
+```
+
+## 12. Migrations
+
+- **Database Evolution:**
+  - **MVP:** Single SQLite database table `item` storing lost and found items.
+  - **Beta:** Schema expanded to 4 tables: `users`, `items`, `team_groups`, and `revoked_tokens`.
+- **Automatic Seed & Column Migration:**
+  - `backend/database.py` calls `create_db_and_tables()` on startup via SQLModel metadata.
+  - `backend/service.py` (`seed_initial_data`) verifies and seeds initial campus desks (`Security Desk`, `Library Front Desk`, `IT Helpdesk`) and default demo accounts (`ammar@campus.edu`, `sajid@campus.edu`, `admin@campus.edu`).
+- **Production Hosted DB:**
+  - For cloud deployment, setting `DATABASE_URL` connects to PostgreSQL (e.g. Neon or Supabase) seamlessly without altering application code.
+
+## 13. Risks
+
+| Risk | Impact | Mitigation |
+|---|---|---|
+| Serverless cold starts on Vercel | Initial API call takes 1-2s longer | Acceptable for demo; keep endpoints lightweight with fast imports |
+| Database file reset on serverless redeploy | SQLite in `/tmp` resets between deployments | Connect hosted PostgreSQL (`DATABASE_URL`) on Neon/Supabase for persistent production data |
+| JWT Secret leakage | Compromised token verification | Store `JWT_SECRET` only in Vercel environment variables, never commit `.env` to Git |
+| Unauthorized report modification | Users modifying others' posts | Enforce item ownership check in backend service layer (`owner_id == user.id`), returning `403` |
+| Token replay attacks | Reusing old tokens | Short 15-minute access token lifespan, rotating refresh tokens, and revocation blacklist on logout |
