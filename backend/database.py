@@ -7,7 +7,7 @@ from sqlalchemy import text
 from sqlmodel import Session, SQLModel, create_engine
 
 # Determine Database URL
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("POSTGRES_URL")
 
 if not DATABASE_URL:
     if os.getenv("VERCEL"):
