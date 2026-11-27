@@ -798,9 +798,4 @@ All commits and pull requests were completed under my GitHub account (Ishmam2222
 | **React, TypeScript & Vite** | 18.3 / 5.6 / 6.x ([https://react.dev](https://react.dev/)) | Frontend SPA components, route guards, and bundling |
 | **Pytest & HTTPX** | >=8.0 ([https://docs.pytest.org](https://docs.pytest.org/)) | Automated API testing for auth and RBAC |
 | **CSE309 Reference (smarter-todo)** | <https://github.com/sayef-reyadh-labs/smarter-todo> | Reference for course JWT, RBAC, and report format expectations |
-| **AI Assistant (Gemini / Antigravity)** | Coding & documentation assistant | Helped structure FastAPI routers, React admin tabs, and markdown tables; all RBAC rules, demo accounts, and tests were reviewed and verified by me |
 
-## Appendix. Test Accounts and Video Demo
-
-- **Video Demo Link (5–8 minutes on live Vercel URL):** *(Provided in the Final Submission Form and PDF Report Appendix)*
-- **Test Accounts & Passwords:** Per course rules (*never commit passwords to GitHub*), the full table of **2 Admin accounts**, **3 Normal User accounts**, their **passwords**, and the **Main Library Lost & Found Team** member permissions is included in the **Appendix of the submitted PDF Report** and the **Final Submission Google Form**.
